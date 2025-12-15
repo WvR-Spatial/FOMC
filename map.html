@@ -1,1 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoMC Interactive Map</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 
+    <style>
+        /* --- RESET & LAYOUT --- */
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Roboto', sans-serif; overflow: hidden; }
+        #map { height: 100%; width: 100%; background: #f0f0f0; }
+
+        /* --- UI CONTROLS (Floating Panel) --- */
+        .map-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000; /* Above Map */
+            width: 250px;
+            max-width: 90%;
+        }
+        .control-title { font-weight: bold; margin-bottom: 10px; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        
+        .filter-item { margin-bottom: 8px; display: flex; align-items: center; cursor: pointer; }
+        .filter-item input { margin-right: 10px; cursor: pointer; }
+        
+        /* --- LEGEND STYLES --- */
+        .legend-item { display: flex; align-items: center; margin-top: 5px; font-size: 13px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; display: inline-block; }
+        
+        .status-active { background: #4CAF50; border: 2px solid white; box-shadow: 0 0 2px rgba(0,0,0,0.3); }
+        .status-risk { background: #FF9800; opacity: 0.6; }
+        .status-inactive { background: #F44336; opacity: 0.6; animation: pulse 2s infinite; }
+
+        /* --- POPUP STYLES --- */
+        .popup-header { font-weight: bold; font-size: 15px; color: #2c3e50; margin-bottom: 5px; }
+        .popup-status { font-size: 12px; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
+        .status-badge-active { background: #e8f5e9; color: #2e7d32; }
+        .status-badge-risk { background: #fff3e0; color: #ef6c00; }
+        .status-badge-inactive { background: #ffebee; color: #c62828; }
+        .popup-event { margin-top: 8px; font-size: 13px; border-top: 1px solid #eee; padding-top: 5px; }
+        .event-date { font-weight: bold; color: #27ae60; }
+        .no-event { color: #7f8c8d; font-style: italic; }
+
+        /* --- ANIMATION --- */
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.2); opacity: 0.4; }
+            100% { transform: scale(1); opacity: 0.6; }
+        }
+
+        /* --- LOADING SPINNER --- */
+        #loader {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(255,255,255,0.9); padding: 20px; border-radius: 8px;
+            z-index: 2000; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center;
+        }
+        #error-log {
+            font-size: 11px; color: #c0392b; margin-top: 10px; max-width: 300px; text-align: left;
+        }
+        .demo-mode-badge {
+            position: absolute; bottom: 10px; left: 10px; 
+            background: #f1c40f; color: #333; 
+            padding: 5px 10px; border-radius: 4px; 
+            font-size: 12px; font-weight: bold; z-index: 2000;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <div>Loading Map Data...</div>
+        <div style="font-size: 0.8em; color: #666;">Connecting to Google Feeds</div>
+        <div id="error-log"></div>
+    </div>
+
+    <div id="map"></div>
+
+    <!-- UI Panel -->
+    <div class="map-controls">
+        <div class="control-title">Filters & Analysis</div>
+        
+        <label class="filter-item">
+            <input type="checkbox" id="chk-neglect" checked onchange="updateFilters()"> 
+            Show Neglected Areas (Halos)
+        </label>
+        
+        <label class="filter-item">
+            <input type="checkbox" id="chk-upcoming" onchange="updateFilters()"> 
+            Show Upcoming Events Only
+        </label>
+
+        <div class="control-title" style="margin-top: 15px;">Status Legend</div>
+        <div class="legend-item"><span class="dot status-active"></span>Active (< 3 months)</div>
+        <div class="legend-item"><span class="dot status-risk"></span>At Risk (3-6 months)</div>
+        <div class="legend-item"><span class="dot status-inactive"></span>Inactive (> 6 months)</div>
+        
+        <div style="margin-top:15px; text-align:right;">
+             <button onclick="window.print()" style="padding:4px 8px; cursor:pointer;">Print Map</button>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ical.js/1.5.0/ical.min.js"></script>
+
+    <script>
+        // --- CONFIGURATION ---
+        // Using corsproxy.io as it is often more robust for Google endpoints
+        const CORS_PROXY = "https://corsproxy.io/?"; 
+        const KML_URL = "https://www.google.com/maps/d/u/0/kml?mid=1N4_do_WC-ikYZ3nO9BO7oz343c51fZs&forcekml=1";
+        const ICAL_URL = "https://calendar.google.com/calendar/ical/friendsofmerricreek%40gmail.com/public/basic.ics";
+        
+        let map;
+        let allMarkers = []; 
+        let calendarEvents = [];
+        let demoMode = false;
+
+        window.onload = init;
+
+        async function init() {
+            // Setup Map
+            map = L.map('map', { zoomControl: false }).setView([-37.75, 144.98], 12); 
+            L.control.zoom({ position: 'bottomright' }).addTo(map);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap &copy; CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20
+            }).addTo(map);
+
+            // LOAD DATA
+            await loadContextLayer(); // Optional
+            await loadCalendarData(); // Critical
+            await loadMapPoints();    // Critical
+
+            document.getElementById('loader').style.display = 'none';
+
+            if(demoMode) {
+                const badge = document.createElement('div');
+                badge.className = 'demo-mode-badge';
+                badge.innerText = 'DEMO MODE (Live Data Failed)';
+                document.body.appendChild(badge);
+            }
+        }
+
+        async function loadContextLayer() {
+            try {
+                const response = await fetch('./merriCatchment_boundary.geojson'); 
+                if(response.ok) {
+                    const data = await response.json();
+                    L.geoJSON(data, {
+                        style: { color: "#2c3e50", weight: 2, fillOpacity: 0.1, dashArray: '5, 5' }
+                    }).addTo(map);
+                    map.fitBounds(L.geoJSON(data).getBounds(), { padding: [50, 50] });
+                }
+            } catch (e) {
+                console.log("Context layer skipped (normal for prototype)");
+            }
+        }
+
+        async function loadCalendarData() {
+            try {
+                console.log("Fetching Calendar...");
+                const proxyUrl = CORS_PROXY + encodeURIComponent(ICAL_URL);
+                const response = await fetch(proxyUrl);
+                
+                if (!response.ok) throw new Error("Calendar HTTP " + response.status);
+                
+                const data = await response.text();
+                const jcalData = ICAL.parse(data);
+                const comp = new ICAL.Component(jcalData);
+                calendarEvents = comp.getAllSubcomponents('vevent').map(event => {
+                    const ev = new ICAL.Event(event);
+                    return {
+                        summary: ev.summary,
+                        location: ev.location,
+                        startDate: ev.startDate.toJSDate(),
+                        description: ev.description
+                    };
+                });
+                console.log(`Success: ${calendarEvents.length} events loaded.`);
+
+            } catch (e) {
+                console.error("Calendar Load Failed:", e);
+                logError("Calendar Connection Failed (Proxy/Network). Using dummy dates.");
+                enableDemoEvents();
+                demoMode = true;
+            }
+        }
+
+        async function loadMapPoints() {
+            console.log("Fetching KML Map...");
+            try {
+                const proxyUrl = CORS_PROXY + encodeURIComponent(KML_URL);
+                const response = await fetch(proxyUrl);
+                
+                if (!response.ok) throw new Error("KML HTTP " + response.status);
+                
+                const kmlText = await response.text();
+                
+                // Use omnivore to parse the RAW TEXT instead of URL
+                // This gives us better control over the fetch process
+                const layer = omnivore.kml.parse(kmlText);
+                const geojson = layer.toGeoJSON();
+
+                if(geojson.features.length === 0) throw new Error("KML Parsed but empty");
+                
+                geojson.features.forEach(feature => createSmartMarker(feature));
+
+            } catch (e) {
+                console.error("KML Load Failed:", e);
+                logError("Google Map Connection Failed. Using dummy locations.");
+                enableDemoPoints(); // Fallback
+                demoMode = true;
+            }
+        }
+
+        // --- CORE LOGIC ---
+
+        function createSmartMarker(feature, isDemo = false) {
+            const rawName = feature.properties.name || "Unknown Group";
+            const cleanName = normalizeName(rawName);
+            
+            // Handle KML coord flip vs GeoJSON coord order
+            // Omnivore normalizes KML to GeoJSON [lng, lat]
+            // Leaflet requires [lat, lng] for Markers
+            let lat, lng;
+            
+            if (feature.geometry.type === "Point") {
+                lng = feature.geometry.coordinates[0];
+                lat = feature.geometry.coordinates[1];
+            } else {
+                return; // Skip non-points
+            }
+            
+            const coords = [lat, lng]; 
+
+            const matches = findEventsForGroup(cleanName);
+            const status = calculateStatus(matches.last);
+
+            // Halo
+            const haloColor = status === 'active' ? '#4CAF50' : (status === 'risk' ? '#FF9800' : '#F44336');
+            const haloOpacity = status === 'active' ? 0 : 0.5;
+            
+            const halo = L.circleMarker(coords, {
+                radius: 20, color: haloColor, weight: 0,
+                fillColor: haloColor, fillOpacity: haloOpacity,
+                className: status === 'inactive' ? 'pulse-animation' : ''
+            }).addTo(map);
+
+            // Marker
+            const marker = L.marker(coords).addTo(map);
+
+            // Popup
+            marker.bindPopup(generatePopupHtml(rawName, status, matches.next, matches.last));
+
+            allMarkers.push({ marker, halo, status, hasUpcoming: !!matches.next });
+        }
+
+        function normalizeName(name) {
+            return name.replace(/FOMC @\s*|Friends of\s*|The\s*/gi, "").trim();
+        }
+
+        function findEventsForGroup(groupName) {
+            const now = new Date();
+            const groupEvents = calendarEvents.filter(e => {
+                return (e.location && e.location.includes(groupName)) || 
+                       (e.summary && e.summary.includes(groupName));
+            });
+            groupEvents.sort((a, b) => a.startDate - b.startDate);
+
+            const past = groupEvents.filter(e => e.startDate < now);
+            const future = groupEvents.filter(e => e.startDate >= now);
+
+            return {
+                last: past.length > 0 ? past[past.length - 1] : null,
+                next: future.length > 0 ? future[0] : null
+            };
+        }
+
+        function calculateStatus(lastEvent) {
+            if (!lastEvent) return 'risk'; 
+            const now = new Date();
+            const monthsSince = (now - lastEvent.startDate) / (1000 * 60 * 60 * 24 * 30);
+            if (monthsSince < 3) return 'active';
+            if (monthsSince < 6) return 'risk';
+            return 'inactive';
+        }
+
+        function generatePopupHtml(name, status, next, last) {
+            let statusBadge = '';
+            if(status === 'active') statusBadge = '<span class="popup-status status-badge-active">Active</span>';
+            if(status === 'risk') statusBadge = '<span class="popup-status status-badge-risk">At Risk</span>';
+            if(status === 'inactive') statusBadge = '<span class="popup-status status-badge-inactive">Inactive</span>';
+
+            let eventHtml = next ? 
+                `<div class="popup-event">NEXT EVENT:<br><span class="event-date">${next.startDate.toLocaleDateString()}</span><br>${next.summary}</div>` : 
+                `<div class="popup-event no-event">No upcoming events found.</div>`;
+            
+            let lastHtml = last ? `<div style="font-size:11px; color:#666; margin-top:5px;">Last: ${last.startDate.toLocaleDateString()}</div>` : '';
+
+            return `<div class="popup-header">${name}</div>${statusBadge}${eventHtml}${lastHtml}`;
+        }
+
+        // --- UI UTILS ---
+        
+        window.updateFilters = function() {
+            const showNeglect = document.getElementById('chk-neglect').checked;
+            const showUpcomingOnly = document.getElementById('chk-upcoming').checked;
+
+            allMarkers.forEach(obj => {
+                let isVisible = true;
+                if (showUpcomingOnly && !obj.hasUpcoming) isVisible = false;
+
+                if (isVisible) {
+                    obj.marker.addTo(map);
+                    if (showNeglect) {
+                        const targetOpacity = obj.status === 'active' ? 0 : (obj.status === 'risk' ? 0.4 : 0.5);
+                        obj.halo.setStyle({ fillOpacity: targetOpacity, opacity: targetOpacity });
+                        obj.halo.addTo(map);
+                    } else {
+                        map.removeLayer(obj.halo);
+                    }
+                } else {
+                    map.removeLayer(obj.marker);
+                    map.removeLayer(obj.halo);
+                }
+            });
+        }
+
+        function logError(msg) {
+            const log = document.getElementById('error-log');
+            log.innerHTML += `<div>⚠️ ${msg}</div>`;
+        }
+
+        // --- FALLBACK DATA (If Google Fails) ---
+        function enableDemoEvents() {
+            // Fake calendar data to test logic
+            const now = new Date();
+            const oneMonthAgo = new Date(); oneMonthAgo.setMonth(now.getMonth() - 1);
+            const sevenMonthsAgo = new Date(); sevenMonthsAgo.setMonth(now.getMonth() - 7);
+            const nextWeek = new Date(); nextWeek.setDate(now.getDate() + 7);
+
+            calendarEvents = [
+                { summary: "Weeding", location: "Coburg Lake", startDate: oneMonthAgo }, // Active
+                { summary: "Planting", location: "Coburg Lake", startDate: nextWeek },   // Upcoming
+                { summary: "Clean up", location: "Merri Park", startDate: sevenMonthsAgo } // Inactive
+            ];
+        }
+
+        function enableDemoPoints() {
+            // Fake locations if KML fails
+            const demoFeatures = [
+                { properties: { name: "FOMC @ Coburg Lake" }, geometry: { type: "Point", coordinates: [144.965, -37.733] } },
+                { properties: { name: "FOMC @ Merri Park" }, geometry: { type: "Point", coordinates: [144.98, -37.77] } },
+                { properties: { name: "FOMC @ Edgars Creek" }, geometry: { type: "Point", coordinates: [144.97, -37.71] } }
+            ];
+            demoFeatures.forEach(f => createSmartMarker(f, true));
+        }
+
+    </script>
+</body>
+</html>

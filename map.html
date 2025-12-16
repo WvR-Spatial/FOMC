@@ -16,68 +16,117 @@
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Roboto', sans-serif; overflow: hidden; }
         #map { height: 100%; width: 100%; background: #f0f0f0; }
 
-        /* --- UI CONTROLS (Floating Panel) --- */
+        /* --- UI CONTROLS (Floating Panel - LEFT SIDE) --- */
         .map-controls {
             position: absolute;
             top: 20px;
-            right: 20px;
+            left: 20px; /* Moved to Left */
             background: white;
-            padding: 15px;
+            padding: 0;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             z-index: 1000;
-            width: 260px;
-            max-width: 90%;
+            width: 280px;
+            max-width: 85%;
+            height: auto;
             max-height: 90vh;
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
         }
-        .control-section { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .control-section:last-child { border-bottom: none; }
-        .control-title { font-weight: 700; margin-bottom: 8px; font-size: 14px; color: #333; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .controls-header {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            background: #f8f9fa;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .controls-content {
+            padding: 15px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .control-section { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .control-section:last-child { border-bottom: none; margin-bottom: 0; }
         
-        .filter-item { margin-bottom: 6px; display: flex; align-items: center; cursor: pointer; font-size: 14px; color: #444; }
+        .control-title { font-weight: 700; margin-bottom: 10px; font-size: 13px; color: #2c3e50; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        /* Checkboxes */
+        .filter-item { margin-bottom: 8px; display: flex; align-items: center; cursor: pointer; font-size: 14px; color: #444; }
         .filter-item input { margin-right: 10px; cursor: pointer; accent-color: #2c3e50; }
         
-        /* --- LEGEND ICONS (CSS MARKERS) --- */
+        /* Group List (Sidebar) */
+        .group-list { list-style: none; padding: 0; margin: 0; }
+        .group-list-item { 
+            padding: 6px 8px; 
+            cursor: pointer; 
+            border-radius: 4px; 
+            font-size: 13px; 
+            color: #555; 
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        .group-list-item:hover { background: #eef2f5; color: #000; }
+        .group-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; flex-shrink: 0;}
+
+        /* --- GLOBAL UPCOMING EVENTS (Bottom Right Overlay) --- */
+        .upcoming-overlay {
+            position: absolute;
+            bottom: 30px;
+            right: 20px;
+            width: 260px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            overflow: hidden;
+        }
+        .upcoming-header {
+            background: #2c3e50;
+            color: white;
+            padding: 10px 15px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .upcoming-list { padding: 0; margin: 0; max-height: 200px; overflow-y: auto; }
+        .upcoming-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .upcoming-item:hover { background: #f8f9fa; }
+        .up-date { font-size: 11px; font-weight: bold; color: #27ae60; display: block; }
+        .up-title { font-size: 13px; color: #333; display: block; margin-top: 2px; }
+        .up-loc { font-size: 11px; color: #7f8c8d; }
+
+        /* --- PINS & POPUPS --- */
+        .pin-swatch { width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; border: 2px solid white; box-shadow: 0 0 3px rgba(0,0,0,0.3); }
+        .pin-yellow { background: #f1c40f; } 
+        .pin-purple { background: #9b59b6; } 
+        .pin-green { background: #2ecc71; } 
         
-        /* Pin Colors */
-        .pin-swatch { width: 14px; height: 14px; border-radius: 50%; margin-right: 8px; border: 2px solid white; box-shadow: 0 0 3px rgba(0,0,0,0.3); }
-        .pin-yellow { background: #f1c40f; } /* FOMC Working Groups */
-        .pin-purple { background: #9b59b6; } /* Partners */
-        .pin-green { background: #2ecc71; }  /* Activity Sites */
-        
-        /* --- CUSTOM MAP MARKERS --- */
         .custom-pin {
             background-color: #fff;
             border: 2px solid #fff;
             border-radius: 50%;
             box-shadow: 0 2px 5px rgba(0,0,0,0.4);
-            text-align: center;
         }
         .custom-pin.type-fomc { background-color: #f1c40f; }
         .custom-pin.type-partner { background-color: #9b59b6; }
         .custom-pin.type-other { background-color: #2ecc71; }
 
-        /* --- POPUP STYLES --- */
         .popup-header { font-weight: bold; font-size: 15px; color: #2c3e50; margin-bottom: 5px; border-bottom: 2px solid #eee; padding-bottom: 5px;}
         .popup-sub { font-size: 11px; text-transform: uppercase; color: #7f8c8d; margin-bottom: 5px; letter-spacing: 0.5px; }
         
-        .popup-event { margin-top: 8px; font-size: 13px; background: #f9f9f9; padding: 8px; border-radius: 4px; border-left: 3px solid #ccc; }
-        .popup-event.has-event { border-left-color: #2ecc71; background: #e8f5e9; }
-        .event-date { font-weight: bold; color: #27ae60; display: block; margin-bottom: 2px;}
-        .event-title { color: #333; }
+        .popup-events-list { max-height: 120px; overflow-y: auto; }
+        .popup-event { margin-top: 6px; font-size: 12px; background: #f9f9f9; padding: 6px; border-radius: 4px; border-left: 3px solid #2ecc71; }
         
-        .last-event { margin-top: 8px; font-size: 11px; color: #95a5a6; font-style: italic; }
-
-        /* --- ANIMATION --- */
-        @keyframes pulse-red {
-            0% { transform: scale(1); opacity: 0.4; }
-            50% { transform: scale(1.1); opacity: 0.2; }
-            100% { transform: scale(1); opacity: 0.4; }
-        }
-        .gap-animation { animation: pulse-red 3s infinite; }
-
-        /* --- LOADING SPINNER --- */
+        /* --- UTILS --- */
+        .hidden { display: none !important; }
+        
         #loader {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             background: rgba(255,255,255,0.95); padding: 25px; border-radius: 12px;
@@ -97,49 +146,61 @@
 
     <div id="map"></div>
 
-    <!-- UI Panel -->
+    <!-- LEFT SIDEBAR -->
     <div class="map-controls">
+        <div class="controls-header">
+            <h3 style="margin:0; font-size:16px;">Map Controls</h3>
+        </div>
         
-        <!-- SECTION 1: GROUP TYPES -->
-        <div class="control-section">
-            <div class="control-title">Group Categories</div>
-            <label class="filter-item">
-                <input type="checkbox" id="chk-fomc" checked onchange="updateFilters()"> 
-                <span class="pin-swatch pin-yellow"></span> FOMC Working Groups
-            </label>
-            <label class="filter-item">
-                <input type="checkbox" id="chk-partner" checked onchange="updateFilters()"> 
-                <span class="pin-swatch pin-purple"></span> Partner Groups
-            </label>
-            <label class="filter-item">
-                <input type="checkbox" id="chk-other" checked onchange="updateFilters()"> 
-                <span class="pin-swatch pin-green"></span> Activity Sites
-            </label>
-        </div>
+        <div class="controls-content">
+            <!-- SECTION 1: LAYERS -->
+            <div class="control-section">
+                <div class="control-title">Filters</div>
+                <label class="filter-item">
+                    <input type="checkbox" id="chk-fomc" checked onchange="updateView()"> 
+                    <span class="pin-swatch pin-yellow"></span> Working Groups
+                </label>
+                <label class="filter-item">
+                    <input type="checkbox" id="chk-partner" checked onchange="updateView()"> 
+                    <span class="pin-swatch pin-purple"></span> Partner Groups
+                </label>
+                <label class="filter-item">
+                    <input type="checkbox" id="chk-other" checked onchange="updateView()"> 
+                    <span class="pin-swatch pin-green"></span> Activity Sites
+                </label>
+            </div>
 
-        <!-- SECTION 2: ACTIVITY STATUS -->
-        <div class="control-section">
-            <div class="control-title">Activity Status</div>
+            <!-- SECTION 2: HOTSPOT -->
+            <div class="control-section">
+                <div class="control-title">Visualization</div>
+                <label class="filter-item">
+                    <input type="checkbox" id="chk-hotspot" onchange="updateView()"> 
+                    <strong>Enable Activity Hotspot</strong>
+                </label>
+                <div style="font-size:11px; color:#666; margin-left:24px; line-height:1.4;">
+                    Highlights most active areas (Past 12mo - Future 3mo). Hides markers.
+                </div>
+            </div>
+
+            <!-- SECTION 3: GROUP LIST -->
+            <div class="control-section">
+                <div class="control-title">All Groups</div>
+                <ul id="group-list-container" class="group-list">
+                    <!-- Populated by JS -->
+                </ul>
+            </div>
             
-            <label class="filter-item">
-                <input type="checkbox" id="chk-upcoming" checked onchange="updateFilters()"> 
-                <strong>Active / Upcoming Events</strong>
-            </label>
-            <div style="font-size:11px; color:#666; margin-left:24px; margin-bottom:8px;">
-                Show groups with events scheduled soon.
-            </div>
-
-            <label class="filter-item">
-                <input type="checkbox" id="chk-gaps" checked onchange="updateFilters()"> 
-                Show Less Active Areas
-            </label>
-             <div style="font-size:11px; color:#666; margin-left:24px; margin-bottom:5px;">
-                Highlights coverage gaps with <span style="color:#e74c3c; font-weight:bold;">Red Zones</span>.
-            </div>
+            <div style="margin-top:15px; text-align:center;">
+                <button onclick="window.print()" style="width:100%; padding:8px; cursor:pointer; background:#eee; border:1px solid #ccc; border-radius:4px;">Print / Export View</button>
+           </div>
         </div>
+    </div>
 
-        <div style="margin-top:10px; text-align:center;">
-             <button onclick="window.print()" style="padding:6px 12px; cursor:pointer; background:#eee; border:1px solid #ccc; border-radius:4px;">Print / Export Map</button>
+    <!-- GLOBAL NEXT EVENTS OVERLAY -->
+    <div id="upcoming-overlay" class="upcoming-overlay">
+        <div class="upcoming-header">Next 3 FoMC Events</div>
+        <div id="upcoming-list" class="upcoming-list">
+            <!-- Populated by JS -->
         </div>
     </div>
 
@@ -147,6 +208,8 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ical.js/1.5.0/ical.min.js"></script>
+    <!-- Leaflet Heatmap Plugin -->
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 
     <script>
         // --- CONFIGURATION ---
@@ -157,13 +220,14 @@
         let map;
         let allMarkers = []; 
         let calendarEvents = [];
+        let heatLayer;
 
         window.onload = init;
 
         async function init() {
             // Setup Map
             map = L.map('map', { zoomControl: false }).setView([-37.75, 144.98], 12); 
-            L.control.zoom({ position: 'bottomright' }).addTo(map);
+            L.control.zoom({ position: 'topright' }).addTo(map);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
                 attribution: '&copy; OpenStreetMap &copy; CARTO',
                 subdomains: 'abcd',
@@ -175,15 +239,16 @@
             await loadCalendarData(); 
             await loadMapPoints();    
 
+            // Post-Load: Generate UI lists
+            generateGroupList();
+            generateGlobalUpcomingList();
+
             document.getElementById('loader').style.display = 'none';
         }
 
         async function loadContextLayer() {
-            // SVG Renderer with padding prevents polygon clipping during pan/zoom
             const myRenderer = L.svg({ padding: 2.0 });
-            
             try {
-                // Try fetching the file if hosted locally (GitHub)
                 const response = await fetch('./merriCatchment_boundary.geojson'); 
                 if(response.ok) {
                     const data = await response.json();
@@ -192,37 +257,30 @@
                 }
                 throw new Error("Local file not found");
             } catch (e) { 
-                console.log("Using Fallback Boundary (Preview Mode).");
-                // FALLBACK: Approximate Merri Creek Catchment for Preview Mode
-                // This ensures the boundary is visible even without the file
-                const fallbackGeoJSON = {
-                    "type": "FeatureCollection",
-                    "features": [{
-                        "type": "Feature",
-                        "geometry": {
-                            "type": "Polygon",
-                            "coordinates": [[
-                                [144.96, -37.50], [145.02, -37.50], 
-                                [145.05, -37.60], [145.02, -37.70], 
-                                [145.00, -37.78], [144.98, -37.78], 
-                                [144.95, -37.70], [144.92, -37.60], 
-                                [144.96, -37.50]
-                            ]]
-                        }
-                    }]
-                };
+                console.log("Using Fallback Boundary.");
+                // Fallback geometry
+                const fallbackGeoJSON = { "type": "FeatureCollection", "features": [{ "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[ [144.96, -37.50], [145.02, -37.50], [145.05, -37.60], [145.02, -37.70], [145.00, -37.78], [144.98, -37.78], [144.95, -37.70], [144.92, -37.60], [144.96, -37.50] ]] } }] };
                 renderBoundary(fallbackGeoJSON, myRenderer);
             }
         }
 
         function renderBoundary(data, renderer) {
-            const layer = L.geoJSON(data, {
+            L.geoJSON(data, {
                 renderer: renderer,
-                style: { color: "#2c3e50", weight: 2, fillOpacity: 0.05, dashArray: '5, 5' },
+                style: { 
+                    color: "#2c3e50", 
+                    weight: 3, 
+                    fillColor: "#000",
+                    fillOpacity: 0.0, // Clear inside
+                    dashArray: '5, 5' 
+                },
                 interactive: false 
             }).addTo(map);
-            layer.bringToBack(); // Ensure it stays behind markers
-            map.fitBounds(layer.getBounds(), { padding: [50, 50] });
+
+            // CHANGED: Removed aggressive paddingTopLeft
+            // Use standard padding to ensure snug fit
+            const bounds = L.geoJSON(data).getBounds();
+            map.fitBounds(bounds, { padding: [50, 50] });
         }
 
         async function loadCalendarData() {
@@ -240,16 +298,20 @@
                         summary: ev.summary || "",
                         location: ev.location || "",
                         startDate: ev.startDate.toJSDate(),
-                        description: ev.description || ""
+                        description: ev.description || "",
+                        lat: null, lng: null // Will be filled if matched to map
                     };
                 });
                 console.log(`Calendar loaded: ${calendarEvents.length} events.`);
 
             } catch (e) {
                 console.error("Calendar Error:", e);
-                document.getElementById('error-log').innerText = "Calendar connection failed. Using fallback data.";
-                // Minimal Fallback for demo
-                calendarEvents = [{summary: "Fallback Event", location: "Coburg", startDate: new Date()}]; 
+                // Fallback
+                calendarEvents = [
+                    {summary: "Community Planting", location: "Coburg Lake", startDate: new Date(Date.now() + 86400000)},
+                    {summary: "Bird Survey", location: "Merri Park", startDate: new Date(Date.now() + 172800000)},
+                    {summary: "Water Quality Test", location: "Edgars Creek", startDate: new Date(Date.now() + 259200000)}
+                ]; 
             }
         }
 
@@ -263,24 +325,20 @@
                 const layer = omnivore.kml.parse(kmlText);
                 const geojson = layer.toGeoJSON();
                 
-                if(geojson.features.length === 0) throw new Error("Empty KML");
                 geojson.features.forEach(feature => createSmartMarker(feature));
 
             } catch (e) {
                 console.error("KML Error:", e);
-                document.getElementById('error-log').innerText += " Map data failed.";
-                // Create dummy points for testing functionality
                 createSmartMarker({properties:{name:"FOMC @ Coburg Lake"}, geometry:{type:"Point", coordinates:[144.965, -37.733]}}, true);
             }
         }
 
         // --- CORE LOGIC ---
 
-        function createSmartMarker(feature, isDemo=false) {
+        function createSmartMarker(feature) {
             const rawName = feature.properties.name || "Unknown";
             const type = determineGroupType(rawName);
             
-            // Coordinates fix
             let lat, lng;
             if (feature.geometry.type === "Point") {
                 lng = feature.geometry.coordinates[0];
@@ -290,47 +348,33 @@
             const coords = [lat, lng]; 
 
             // Matching Logic
-            const matches = findEventsForGroup(rawName);
-            const status = calculateStatus(matches.last);
-            const hasUpcoming = !!matches.next;
+            const eventsData = findEventsForGroup(rawName);
+            
+            // Assign coords to events for Hotspot logic
+            eventsData.all.forEach(ev => { ev.lat = lat; ev.lng = lng; });
 
-            // 1. Create Icon (Colored Pin based on Type)
+            // Create Icon
             const iconClass = `custom-pin type-${type}`;
             const customIcon = L.divIcon({
                 className: iconClass,
-                iconSize: [14, 14], // Small dot
+                iconSize: [14, 14],
                 iconAnchor: [7, 7],
                 popupAnchor: [0, -10]
             });
 
-            // 2. Create Coverage Gap Halo (The "Neglect" Visualization)
-            // Only shown if status is 'gap' (inactive)
-            const halo = L.circle(coords, {
-                radius: 400, // Fixed physical size (meters)
-                color: '#e74c3c', 
-                weight: 1,
-                fillColor: '#e74c3c', 
-                fillOpacity: 0.2,
-                className: 'gap-animation',
-                interactive: false // Clicks pass through to map
-            });
-
             const marker = L.marker(coords, {icon: customIcon}).addTo(map);
             
-            // Popup
-            marker.bindPopup(generatePopupHtml(rawName, type, matches.next, matches.last));
+            // Popup with Next 3 Events
+            const next3 = eventsData.future.slice(0, 3);
+            marker.bindPopup(generatePopupHtml(rawName, type, next3));
 
-            // Store for filtering
             allMarkers.push({ 
                 marker, 
-                halo, 
                 type, 
-                status, 
-                hasUpcoming 
+                name: rawName,
+                coords: coords,
+                events: eventsData
             });
-
-            // Initial Filter State
-            updateFilters();
         }
 
         function determineGroupType(name) {
@@ -344,10 +388,10 @@
             const now = new Date();
             const coreName = rawMapName.replace(/FOMC @\s*|Friends of\s*|The\s*/gi, "").trim().toLowerCase();
 
+            // Find all matching events
             const groupEvents = calendarEvents.filter(e => {
                 const loc = (e.location || "").toLowerCase();
                 const sum = (e.summary || "").toLowerCase();
-                // Bidirectional Match
                 const locMatch = loc.includes(coreName) || (loc.length > 5 && coreName.includes(loc));
                 const sumMatch = sum.includes(coreName);
                 return locMatch || sumMatch;
@@ -357,74 +401,167 @@
 
             const past = groupEvents.filter(e => e.startDate < now);
             const future = groupEvents.filter(e => e.startDate >= now);
+            
+            // For Hotspot: Count events in range (Past 12mo to Future 3mo)
+            const yearAgo = new Date(); yearAgo.setFullYear(now.getFullYear() - 1);
+            const threeMonthsFuture = new Date(); threeMonthsFuture.setMonth(now.getMonth() + 3);
+            
+            const hotspotCount = groupEvents.filter(e => e.startDate >= yearAgo && e.startDate <= threeMonthsFuture).length;
 
             return {
-                last: past.length > 0 ? past[past.length - 1] : null,
-                next: future.length > 0 ? future[0] : null
+                all: groupEvents,
+                past: past,
+                future: future,
+                hotspotCount: hotspotCount
             };
         }
 
-        function calculateStatus(lastEvent) {
-            if (!lastEvent) return 'gap'; 
-            const now = new Date();
-            const monthsSince = (now - lastEvent.startDate) / (1000 * 60 * 60 * 24 * 30);
-            if (monthsSince < 6) return 'active';
-            return 'gap';
-        }
-
-        function generatePopupHtml(name, type, next, last) {
+        function generatePopupHtml(name, type, nextEvents) {
             let typeLabel = type === 'fomc' ? 'Working Group' : (type === 'partner' ? 'Partner Group' : 'Activity Site');
             
-            let eventHtml = next ? 
-                `<div class="popup-event has-event">
-                    <span class="event-date">NEXT: ${next.startDate.toLocaleDateString()}</span>
-                    <span class="event-title">${next.summary}</span>
-                </div>` : 
-                `<div class="popup-event">No upcoming events.</div>`;
-            
-            let lastHtml = last ? `<div class="last-event">Last recorded: ${last.startDate.toLocaleDateString()}</div>` : '';
+            let eventsHtml = '';
+            if (nextEvents.length > 0) {
+                eventsHtml = `<div class="popup-events-list">`;
+                nextEvents.forEach(e => {
+                    eventsHtml += `
+                        <div class="popup-event">
+                            <span class="event-date">${e.startDate.toLocaleDateString()}</span>
+                            <span class="event-title">${e.summary}</span>
+                        </div>`;
+                });
+                eventsHtml += `</div>`;
+            } else {
+                eventsHtml = `<div class="popup-event" style="border-left-color:#ccc;">No upcoming events.</div>`;
+            }
 
             return `<div class="popup-header">${name}</div>
                     <div class="popup-sub">${typeLabel}</div>
-                    ${eventHtml}${lastHtml}`;
+                    ${eventsHtml}`;
         }
 
-        // --- FILTERING LOGIC (STRICT) ---
-        window.updateFilters = function() {
+        // --- UI GENERATORS ---
+
+        function generateGroupList() {
+            const container = document.getElementById('group-list-container');
+            // Sort by name
+            const sorted = [...allMarkers].sort((a,b) => a.name.localeCompare(b.name));
+            
+            sorted.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'group-list-item';
+                
+                // Dot color
+                let color = '#2ecc71';
+                if(item.type === 'fomc') color = '#f1c40f';
+                if(item.type === 'partner') color = '#9b59b6';
+                
+                li.innerHTML = `<div class="group-dot" style="background:${color}"></div>${item.name}`;
+                
+                li.onclick = () => {
+                    map.flyTo(item.coords, 14, { duration: 1.5 });
+                    item.marker.openPopup();
+                };
+                container.appendChild(li);
+            });
+        }
+
+        function generateGlobalUpcomingList() {
+            const container = document.getElementById('upcoming-list');
+            const now = new Date();
+            
+            // STRATEGY: 
+            // 1. Try to get matched events from markers
+            let allFuture = [];
+            allMarkers.forEach(m => {
+                allFuture = allFuture.concat(m.events.future.map(e => ({...e, markerRef: m})));
+            });
+            
+            // 2. Fallback: If no markers have events (maybe matching failed), 
+            // check raw calendar data for ANY future events
+            if (allFuture.length === 0 && calendarEvents.length > 0) {
+                console.log("No marker matches found. Using raw calendar data.");
+                allFuture = calendarEvents.filter(e => e.startDate >= now);
+            }
+            
+            // Sort by date
+            allFuture.sort((a,b) => a.startDate - b.startDate);
+            
+            // Take next 3
+            const next3 = allFuture.slice(0, 3);
+            
+            container.innerHTML = "";
+            if(next3.length === 0) {
+                // If STILL empty, it means calendar fetch failed or data is empty
+                container.innerHTML = "<div style='padding:15px; font-size:12px;'>No upcoming events found.</div>";
+                return;
+            }
+
+            next3.forEach(e => {
+                const div = document.createElement('div');
+                div.className = 'upcoming-item';
+                div.innerHTML = `
+                    <span class="up-date">${e.startDate.toLocaleDateString()}</span>
+                    <span class="up-title">${e.summary}</span>
+                    <span class="up-loc">@ ${e.location || 'Unknown Location'}</span>
+                `;
+                div.onclick = () => {
+                    // Only fly if we have a marker reference
+                    if(e.markerRef) {
+                        map.flyTo(e.markerRef.coords, 14);
+                        e.markerRef.marker.openPopup();
+                    } else {
+                        // If raw event with no marker match, we can't fly anywhere
+                        // Maybe alert or just do nothing
+                        console.log("Event has no map location match.");
+                    }
+                };
+                container.appendChild(div);
+            });
+        }
+
+        // --- FILTER & VIEW LOGIC ---
+        
+        window.updateView = function() {
             const showFOMC = document.getElementById('chk-fomc').checked;
             const showPartner = document.getElementById('chk-partner').checked;
             const showOther = document.getElementById('chk-other').checked;
-            
-            const showActive = document.getElementById('chk-upcoming').checked;
-            const showGaps = document.getElementById('chk-gaps').checked;
+            const enableHotspot = document.getElementById('chk-hotspot').checked;
 
-            allMarkers.forEach(obj => {
-                // 1. Category Check
-                let categoryMatch = false;
-                if (obj.type === 'fomc' && showFOMC) categoryMatch = true;
-                if (obj.type === 'partner' && showPartner) categoryMatch = true;
-                if (obj.type === 'other' && showOther) categoryMatch = true;
-
-                // 2. Status Check
-                let statusMatch = false;
-                if (obj.status === 'active' && showActive) statusMatch = true;
-                if (obj.status === 'gap' && showGaps) statusMatch = true;
-
-                // Combined Visibility
-                if (categoryMatch && statusMatch) {
-                    obj.marker.addTo(map);
-                    
-                    // Show Halo only if it's a gap AND gaps are enabled
-                    if (obj.status === 'gap' && showGaps) {
-                        obj.halo.addTo(map);
-                    } else {
-                        map.removeLayer(obj.halo);
-                    }
+            // 1. Manage Markers vs Heatmap
+            if (enableHotspot) {
+                // HOTSPOT MODE
+                // Hide Markers, Show Heatmap, Hide Popup Overlay
+                allMarkers.forEach(m => map.removeLayer(m.marker));
+                document.getElementById('upcoming-overlay').classList.add('hidden');
+                
+                if (!heatLayer) {
+                    // Generate Heat Points: [lat, lng, intensity]
+                    const heatPoints = allMarkers.map(m => [
+                        m.coords[0], 
+                        m.coords[1], 
+                        Math.min(m.events.hotspotCount * 20, 100) // Scale: 5 events = max intensity
+                    ]);
+                    heatLayer = L.heatLayer(heatPoints, { radius: 35, blur: 20, maxZoom: 14 }).addTo(map);
                 } else {
-                    map.removeLayer(obj.marker);
-                    map.removeLayer(obj.halo);
+                    heatLayer.addTo(map);
                 }
-            });
+
+            } else {
+                // STANDARD MODE
+                // Show Markers, Hide Heatmap, Show Popup Overlay
+                if (heatLayer) map.removeLayer(heatLayer);
+                document.getElementById('upcoming-overlay').classList.remove('hidden');
+
+                allMarkers.forEach(obj => {
+                    let visible = false;
+                    if (obj.type === 'fomc' && showFOMC) visible = true;
+                    if (obj.type === 'partner' && showPartner) visible = true;
+                    if (obj.type === 'other' && showOther) visible = true;
+
+                    if (visible) obj.marker.addTo(map);
+                    else map.removeLayer(obj.marker);
+                });
+            }
         }
     </script>
 </body>

@@ -16,53 +16,60 @@
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Roboto', sans-serif; overflow: hidden; }
         #map { height: 100%; width: 100%; background: #f0f0f0; }
 
-        /* --- UI CONTROLS (Floating Panel - LEFT SIDE) --- */
+        /* --- UI CONTROLS (Unified Sidebar) --- */
         .map-controls {
             position: absolute;
-            top: 20px;
-            left: 20px; /* Moved to Left */
+            top: 15px;
+            left: 15px;
             background: white;
             padding: 0;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border-radius: 6px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
             z-index: 1000;
-            width: 280px;
-            max-width: 85%;
+            width: 240px; /* Narrower */
+            max-width: 80%;
             height: auto;
-            max-height: 90vh;
+            max-height: 95vh;
             display: flex;
             flex-direction: column;
+            font-size: 13px; /* Tighter font */
         }
 
         .controls-header {
-            padding: 15px;
+            padding: 10px 15px;
             border-bottom: 1px solid #eee;
             background: #f8f9fa;
-            border-radius: 8px 8px 0 0;
+            border-radius: 6px 6px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .controls-content {
-            padding: 15px;
+            padding: 10px 15px;
             overflow-y: auto;
             flex-grow: 1;
         }
 
-        .control-section { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
-        .control-section:last-child { border-bottom: none; margin-bottom: 0; }
+        .control-section { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .control-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         
-        .control-title { font-weight: 700; margin-bottom: 10px; font-size: 13px; color: #2c3e50; text-transform: uppercase; letter-spacing: 0.5px; }
+        .control-title { font-weight: 700; margin-bottom: 8px; font-size: 12px; color: #2c3e50; text-transform: uppercase; letter-spacing: 0.5px; }
         
         /* Checkboxes */
-        .filter-item { margin-bottom: 8px; display: flex; align-items: center; cursor: pointer; font-size: 14px; color: #444; }
-        .filter-item input { margin-right: 10px; cursor: pointer; accent-color: #2c3e50; }
+        .filter-item { margin-bottom: 5px; display: flex; align-items: center; cursor: pointer; color: #444; }
+        .filter-item input { margin-right: 8px; cursor: pointer; accent-color: #2c3e50; }
         
-        /* Group List (Sidebar) */
-        .group-list { list-style: none; padding: 0; margin: 0; }
+        /* Collapsible List */
+        details summary { cursor: pointer; font-weight: 500; color: #2980b9; margin-bottom: 5px; outline: none; }
+        details summary:hover { text-decoration: underline; }
+        
+        /* Group List */
+        .group-list { list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; }
         .group-list-item { 
-            padding: 6px 8px; 
+            padding: 4px 6px; 
             cursor: pointer; 
             border-radius: 4px; 
-            font-size: 13px; 
             color: #555; 
             transition: background 0.2s;
             display: flex;
@@ -71,39 +78,24 @@
         .group-list-item:hover { background: #eef2f5; color: #000; }
         .group-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; flex-shrink: 0;}
 
-        /* --- GLOBAL UPCOMING EVENTS (Bottom Right Overlay) --- */
-        .upcoming-overlay {
-            position: absolute;
-            bottom: 30px;
-            right: 20px;
-            width: 260px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 1000;
-            overflow: hidden;
-        }
-        .upcoming-header {
-            background: #2c3e50;
-            color: white;
-            padding: 10px 15px;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        .upcoming-list { padding: 0; margin: 0; max-height: 200px; overflow-y: auto; }
-        .upcoming-item {
-            padding: 10px 15px;
-            border-bottom: 1px solid #eee;
+        /* Upcoming Events (Integrated) */
+        .upcoming-list-integrated { padding: 0; margin: 0; }
+        .upcoming-item-integrated {
+            padding: 8px;
+            background: #f8f9fa;
+            border-left: 3px solid #2ecc71;
+            margin-bottom: 6px;
+            border-radius: 4px;
             cursor: pointer;
             transition: background 0.2s;
         }
-        .upcoming-item:hover { background: #f8f9fa; }
-        .up-date { font-size: 11px; font-weight: bold; color: #27ae60; display: block; }
-        .up-title { font-size: 13px; color: #333; display: block; margin-top: 2px; }
-        .up-loc { font-size: 11px; color: #7f8c8d; }
+        .upcoming-item-integrated:hover { background: #e8f5e9; }
+        .up-date { font-weight: bold; color: #27ae60; display: block; font-size: 11px; }
+        .up-title { font-weight: 500; color: #333; display: block; margin: 2px 0; }
+        .up-loc { color: #7f8c8d; font-size: 10px; }
 
         /* --- PINS & POPUPS --- */
-        .pin-swatch { width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; border: 2px solid white; box-shadow: 0 0 3px rgba(0,0,0,0.3); }
+        .pin-swatch { width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; border: 1px solid #ccc; }
         .pin-yellow { background: #f1c40f; } 
         .pin-purple { background: #9b59b6; } 
         .pin-green { background: #2ecc71; } 
@@ -117,43 +109,53 @@
         .custom-pin.type-fomc { background-color: #f1c40f; }
         .custom-pin.type-partner { background-color: #9b59b6; }
         .custom-pin.type-other { background-color: #2ecc71; }
+        
+        /* Specific Event Pin */
+        .event-pin {
+            background-color: #3498db;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.3);
+        }
 
-        .popup-header { font-weight: bold; font-size: 15px; color: #2c3e50; margin-bottom: 5px; border-bottom: 2px solid #eee; padding-bottom: 5px;}
-        .popup-sub { font-size: 11px; text-transform: uppercase; color: #7f8c8d; margin-bottom: 5px; letter-spacing: 0.5px; }
-        
-        .popup-events-list { max-height: 120px; overflow-y: auto; }
-        .popup-event { margin-top: 6px; font-size: 12px; background: #f9f9f9; padding: 6px; border-radius: 4px; border-left: 3px solid #2ecc71; }
-        
+        /* --- PRINT STYLES --- */
+        @media print {
+            .map-controls { display: none !important; }
+            .upcoming-item-integrated, .group-list-item, .custom-pin, .pin-swatch, .group-dot {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
         /* --- UTILS --- */
         .hidden { display: none !important; }
         
         #loader {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(255,255,255,0.95); padding: 25px; border-radius: 12px;
+            background: rgba(255,255,255,0.95); padding: 20px; border-radius: 8px;
             z-index: 2000; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center;
-            min-width: 200px;
         }
-        #error-log { font-size: 11px; color: #c0392b; margin-top: 10px; text-align: left; }
     </style>
 </head>
 <body>
 
     <div id="loader">
-        <h3 style="margin:0 0 10px 0; color:#333;">Loading Map</h3>
+        <h3 style="margin:0 0 10px 0; font-size:16px;">Loading Map</h3>
         <div style="font-size: 0.9em; color: #666;">Syncing Google Calendar & Maps...</div>
-        <div id="error-log"></div>
+        <div id="error-log" style="font-size:11px; color:red; margin-top:5px;"></div>
     </div>
 
     <div id="map"></div>
 
-    <!-- LEFT SIDEBAR -->
+    <!-- UNIFIED LEFT SIDEBAR -->
     <div class="map-controls">
         <div class="controls-header">
-            <h3 style="margin:0; font-size:16px;">Map Controls</h3>
+            <strong style="font-size:14px;">Friends of Merri Creek</strong>
         </div>
         
         <div class="controls-content">
-            <!-- SECTION 1: LAYERS -->
+            
+            <!-- 1. FILTERS -->
             <div class="control-section">
                 <div class="control-title">Filters</div>
                 <label class="filter-item">
@@ -170,37 +172,36 @@
                 </label>
             </div>
 
-            <!-- SECTION 2: HOTSPOT -->
+            <!-- 2. NEXT 3 EVENTS -->
             <div class="control-section">
-                <div class="control-title">Visualization</div>
-                <label class="filter-item">
-                    <input type="checkbox" id="chk-hotspot" onchange="updateView()"> 
-                    <strong>Enable Activity Hotspot</strong>
-                </label>
-                <div style="font-size:11px; color:#666; margin-left:24px; line-height:1.4;">
-                    Highlights most active areas (Past 12mo - Future 3mo). Hides markers.
+                <div class="control-title">Next 3 Events</div>
+                <div id="upcoming-list-integrated" class="upcoming-list-integrated">
+                    <div style="color:#999; font-style:italic;">Loading events...</div>
                 </div>
             </div>
 
-            <!-- SECTION 3: GROUP LIST -->
+            <!-- 3. ALL GROUPS (Collapsible & Sorted) -->
             <div class="control-section">
-                <div class="control-title">All Groups</div>
-                <ul id="group-list-container" class="group-list">
-                    <!-- Populated by JS -->
-                </ul>
+                <details>
+                    <summary class="control-title" style="display:list-item;">All Groups (Expand)</summary>
+                    <ul id="group-list-container" class="group-list">
+                        <!-- Populated by JS -->
+                    </ul>
+                </details>
+            </div>
+
+            <!-- 4. VISUALISATION -->
+            <div class="control-section">
+                <label class="filter-item">
+                    <input type="checkbox" id="chk-hotspot" onchange="updateView()"> 
+                    <strong>Visualisation:</strong>&nbsp;Activity Hotspot
+                </label>
+                <div style="font-size:10px; color:#666; margin-left:22px; line-height:1.2;">
+                    Heatmap of activity (Past 1yr - Future 3mo).
+                </div>
             </div>
             
-            <div style="margin-top:15px; text-align:center;">
-                <button onclick="window.print()" style="width:100%; padding:8px; cursor:pointer; background:#eee; border:1px solid #ccc; border-radius:4px;">Print / Export View</button>
-           </div>
-        </div>
-    </div>
-
-    <!-- GLOBAL NEXT EVENTS OVERLAY -->
-    <div id="upcoming-overlay" class="upcoming-overlay">
-        <div class="upcoming-header">Next 3 FoMC Events</div>
-        <div id="upcoming-list" class="upcoming-list">
-            <!-- Populated by JS -->
+            <button onclick="window.print()" style="width:100%; padding:6px; cursor:pointer; background:#eee; border:1px solid #ccc; border-radius:4px; font-size:12px;">Print / Export View</button>
         </div>
     </div>
 
@@ -208,7 +209,6 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ical.js/1.5.0/ical.min.js"></script>
-    <!-- Leaflet Heatmap Plugin -->
     <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 
     <script>
@@ -221,11 +221,11 @@
         let allMarkers = []; 
         let calendarEvents = [];
         let heatLayer;
+        let eventHighlightLayer; // For temporary blue pin
 
         window.onload = init;
 
         async function init() {
-            // Setup Map
             map = L.map('map', { zoomControl: false }).setView([-37.75, 144.98], 12); 
             L.control.zoom({ position: 'topright' }).addTo(map);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
@@ -234,20 +234,18 @@
                 maxZoom: 20
             }).addTo(map);
 
-            // Load Data
             await loadContextLayer(); 
             await loadCalendarData(); 
             await loadMapPoints();    
 
-            // Post-Load: Generate UI lists
             generateGroupList();
-            generateGlobalUpcomingList();
+            generateIntegratedUpcomingList();
 
             document.getElementById('loader').style.display = 'none';
         }
 
         async function loadContextLayer() {
-            const myRenderer = L.svg({ padding: 2.0 });
+            const myRenderer = L.svg({ padding: 1.0 });
             try {
                 const response = await fetch('./merriCatchment_boundary.geojson'); 
                 if(response.ok) {
@@ -258,7 +256,6 @@
                 throw new Error("Local file not found");
             } catch (e) { 
                 console.log("Using Fallback Boundary.");
-                // Fallback geometry
                 const fallbackGeoJSON = { "type": "FeatureCollection", "features": [{ "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[ [144.96, -37.50], [145.02, -37.50], [145.05, -37.60], [145.02, -37.70], [145.00, -37.78], [144.98, -37.78], [144.95, -37.70], [144.92, -37.60], [144.96, -37.50] ]] } }] };
                 renderBoundary(fallbackGeoJSON, myRenderer);
             }
@@ -267,20 +264,11 @@
         function renderBoundary(data, renderer) {
             L.geoJSON(data, {
                 renderer: renderer,
-                style: { 
-                    color: "#2c3e50", 
-                    weight: 3, 
-                    fillColor: "#000",
-                    fillOpacity: 0.0, // Clear inside
-                    dashArray: '5, 5' 
-                },
+                style: { color: "#2c3e50", weight: 3, fillColor: "#000", fillOpacity: 0.0, dashArray: '5, 5' },
                 interactive: false 
             }).addTo(map);
-
-            // CHANGED: Removed aggressive paddingTopLeft
-            // Use standard padding to ensure snug fit
             const bounds = L.geoJSON(data).getBounds();
-            map.fitBounds(bounds, { padding: [50, 50] });
+            map.fitBounds(bounds, { padding: [20, 20] });
         }
 
         async function loadCalendarData() {
@@ -294,12 +282,19 @@
                 const comp = new ICAL.Component(jcalData);
                 calendarEvents = comp.getAllSubcomponents('vevent').map(event => {
                     const ev = new ICAL.Event(event);
+                    
+                    // Attempt to extract specific coords from Description or Location
+                    const rawDesc = ev.description || "";
+                    const rawLoc = ev.location || "";
+                    const coords = extractCoords(rawDesc) || extractCoords(rawLoc);
+
                     return {
                         summary: ev.summary || "",
-                        location: ev.location || "",
+                        location: rawLoc,
                         startDate: ev.startDate.toJSDate(),
-                        description: ev.description || "",
-                        lat: null, lng: null // Will be filled if matched to map
+                        description: rawDesc,
+                        lat: coords ? coords.lat : null,
+                        lng: coords ? coords.lng : null 
                     };
                 });
                 console.log(`Calendar loaded: ${calendarEvents.length} events.`);
@@ -309,10 +304,21 @@
                 // Fallback
                 calendarEvents = [
                     {summary: "Community Planting", location: "Coburg Lake", startDate: new Date(Date.now() + 86400000)},
-                    {summary: "Bird Survey", location: "Merri Park", startDate: new Date(Date.now() + 172800000)},
-                    {summary: "Water Quality Test", location: "Edgars Creek", startDate: new Date(Date.now() + 259200000)}
+                    {summary: "Bird Survey", location: "Merri Park", startDate: new Date(Date.now() + 172800000)}
                 ]; 
             }
+        }
+
+        function extractCoords(text) {
+            if(!text) return null;
+            // Look for patterns like "maps.google.com/?q=lat,lng" or "@lat,lng"
+            // Simple regex for lat,lng pattern: -37.1234, 144.1234
+            const regex = /(-?\d{1,3}\.\d+),\s*(-?\d{1,3}\.\d+)/;
+            const match = text.match(regex);
+            if(match) {
+                return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+            }
+            return null;
         }
 
         async function loadMapPoints() {
@@ -348,11 +354,8 @@
             const coords = [lat, lng]; 
 
             // Matching Logic
-            const eventsData = findEventsForGroup(rawName);
+            const eventsData = findEventsForGroup(rawName, coords);
             
-            // Assign coords to events for Hotspot logic
-            eventsData.all.forEach(ev => { ev.lat = lat; ev.lng = lng; });
-
             // Create Icon
             const iconClass = `custom-pin type-${type}`;
             const customIcon = L.divIcon({
@@ -384,7 +387,7 @@
             return "other"; 
         }
 
-        function findEventsForGroup(rawMapName) {
+        function findEventsForGroup(rawMapName, groupCoords) {
             const now = new Date();
             const coreName = rawMapName.replace(/FOMC @\s*|Friends of\s*|The\s*/gi, "").trim().toLowerCase();
 
@@ -392,9 +395,17 @@
             const groupEvents = calendarEvents.filter(e => {
                 const loc = (e.location || "").toLowerCase();
                 const sum = (e.summary || "").toLowerCase();
+                
+                // Match Logic: Name string match
                 const locMatch = loc.includes(coreName) || (loc.length > 5 && coreName.includes(loc));
                 const sumMatch = sum.includes(coreName);
-                return locMatch || sumMatch;
+                
+                // If this event matches, check if it has specific coords. If not, inherit group coords.
+                if (locMatch || sumMatch) {
+                    if (!e.lat) { e.lat = groupCoords[0]; e.lng = groupCoords[1]; }
+                    return true;
+                }
+                return false;
             });
 
             groupEvents.sort((a, b) => a.startDate - b.startDate);
@@ -402,55 +413,44 @@
             const past = groupEvents.filter(e => e.startDate < now);
             const future = groupEvents.filter(e => e.startDate >= now);
             
-            // For Hotspot: Count events in range (Past 12mo to Future 3mo)
+            // Hotspot logic
             const yearAgo = new Date(); yearAgo.setFullYear(now.getFullYear() - 1);
             const threeMonthsFuture = new Date(); threeMonthsFuture.setMonth(now.getMonth() + 3);
-            
             const hotspotCount = groupEvents.filter(e => e.startDate >= yearAgo && e.startDate <= threeMonthsFuture).length;
 
-            return {
-                all: groupEvents,
-                past: past,
-                future: future,
-                hotspotCount: hotspotCount
-            };
+            return { all: groupEvents, past: past, future: future, hotspotCount: hotspotCount };
         }
 
         function generatePopupHtml(name, type, nextEvents) {
             let typeLabel = type === 'fomc' ? 'Working Group' : (type === 'partner' ? 'Partner Group' : 'Activity Site');
-            
             let eventsHtml = '';
             if (nextEvents.length > 0) {
                 eventsHtml = `<div class="popup-events-list">`;
                 nextEvents.forEach(e => {
-                    eventsHtml += `
-                        <div class="popup-event">
-                            <span class="event-date">${e.startDate.toLocaleDateString()}</span>
-                            <span class="event-title">${e.summary}</span>
-                        </div>`;
+                    eventsHtml += `<div class="popup-event"><span class="event-date">${e.startDate.toLocaleDateString()}</span><span class="event-title">${e.summary}</span></div>`;
                 });
                 eventsHtml += `</div>`;
             } else {
                 eventsHtml = `<div class="popup-event" style="border-left-color:#ccc;">No upcoming events.</div>`;
             }
-
-            return `<div class="popup-header">${name}</div>
-                    <div class="popup-sub">${typeLabel}</div>
-                    ${eventsHtml}`;
+            return `<div class="popup-header">${name}</div><div class="popup-sub">${typeLabel}</div>${eventsHtml}`;
         }
 
         // --- UI GENERATORS ---
 
         function generateGroupList() {
             const container = document.getElementById('group-list-container');
-            // Sort by name
-            const sorted = [...allMarkers].sort((a,b) => a.name.localeCompare(b.name));
+            // SORTING: South to North (Ascending Latitude)
+            // Latitude is negative (-37.8 is south of -37.7)
+            // Ascending sort: -37.8 comes before -37.7
+            const sorted = [...allMarkers].sort((a,b) => a.coords[0] - b.coords[0]);
+            
+            container.innerHTML = ""; // Clear existing
             
             sorted.forEach(item => {
                 const li = document.createElement('li');
                 li.className = 'group-list-item';
                 
-                // Dot color
                 let color = '#2ecc71';
                 if(item.type === 'fomc') color = '#f1c40f';
                 if(item.type === 'partner') color = '#9b59b6';
@@ -465,58 +465,70 @@
             });
         }
 
-        function generateGlobalUpcomingList() {
-            const container = document.getElementById('upcoming-list');
+        function generateIntegratedUpcomingList() {
+            const container = document.getElementById('upcoming-list-integrated');
             const now = new Date();
             
-            // STRATEGY: 
-            // 1. Try to get matched events from markers
-            let allFuture = [];
-            allMarkers.forEach(m => {
-                allFuture = allFuture.concat(m.events.future.map(e => ({...e, markerRef: m})));
-            });
+            // 1. POOL ALL FUTURE EVENTS
+            // We use the calendarEvents array directly to ensure we catch events even if name matching failed
+            let allFuture = calendarEvents.filter(e => e.startDate >= now);
             
-            // 2. Fallback: If no markers have events (maybe matching failed), 
-            // check raw calendar data for ANY future events
-            if (allFuture.length === 0 && calendarEvents.length > 0) {
-                console.log("No marker matches found. Using raw calendar data.");
-                allFuture = calendarEvents.filter(e => e.startDate >= now);
-            }
-            
-            // Sort by date
+            // 2. Sort by Date
             allFuture.sort((a,b) => a.startDate - b.startDate);
             
-            // Take next 3
+            // 3. Take Top 3
             const next3 = allFuture.slice(0, 3);
             
             container.innerHTML = "";
             if(next3.length === 0) {
-                // If STILL empty, it means calendar fetch failed or data is empty
-                container.innerHTML = "<div style='padding:15px; font-size:12px;'>No upcoming events found.</div>";
+                container.innerHTML = "<div style='padding:10px; font-size:11px; color:#777;'>No upcoming events found.</div>";
                 return;
             }
 
             next3.forEach(e => {
                 const div = document.createElement('div');
-                div.className = 'upcoming-item';
+                div.className = 'upcoming-item-integrated';
                 div.innerHTML = `
                     <span class="up-date">${e.startDate.toLocaleDateString()}</span>
                     <span class="up-title">${e.summary}</span>
                     <span class="up-loc">@ ${e.location || 'Unknown Location'}</span>
                 `;
                 div.onclick = () => {
-                    // Only fly if we have a marker reference
-                    if(e.markerRef) {
-                        map.flyTo(e.markerRef.coords, 14);
-                        e.markerRef.marker.openPopup();
-                    } else {
-                        // If raw event with no marker match, we can't fly anywhere
-                        // Maybe alert or just do nothing
-                        console.log("Event has no map location match.");
-                    }
+                   visualizeEventLocation(e);
                 };
                 container.appendChild(div);
             });
+        }
+
+        function visualizeEventLocation(event) {
+            // Remove existing highlight
+            if (eventHighlightLayer) map.removeLayer(eventHighlightLayer);
+
+            // Determine Target Coordinates
+            // 1. Event has specific extracted coords?
+            // 2. Event matched to a group? (Need to find group match again if using raw list)
+            
+            let targetCoords = null;
+            
+            if (event.lat && event.lng) {
+                targetCoords = [event.lat, event.lng];
+            } else {
+                // Try to find a group marker that matches this event location string
+                // This is a basic fallback
+                const match = allMarkers.find(m => m.events.all.includes(event));
+                if (match) targetCoords = match.coords;
+            }
+
+            if (targetCoords) {
+                map.flyTo(targetCoords, 15);
+                
+                // Show blue "Event Pin"
+                const icon = L.divIcon({ className: 'event-pin', iconSize: [16, 16] });
+                eventHighlightLayer = L.marker(targetCoords, {icon: icon}).addTo(map)
+                    .bindPopup(`<b>Event Location</b><br>${event.summary}<br>${event.location}`).openPopup();
+            } else {
+                alert("No specific location data found for this event.");
+            }
         }
 
         // --- FILTER & VIEW LOGIC ---
@@ -527,39 +539,25 @@
             const showOther = document.getElementById('chk-other').checked;
             const enableHotspot = document.getElementById('chk-hotspot').checked;
 
-            // 1. Manage Markers vs Heatmap
             if (enableHotspot) {
-                // HOTSPOT MODE
-                // Hide Markers, Show Heatmap, Hide Popup Overlay
                 allMarkers.forEach(m => map.removeLayer(m.marker));
-                document.getElementById('upcoming-overlay').classList.add('hidden');
-                
                 if (!heatLayer) {
-                    // Generate Heat Points: [lat, lng, intensity]
                     const heatPoints = allMarkers.map(m => [
-                        m.coords[0], 
-                        m.coords[1], 
-                        Math.min(m.events.hotspotCount * 20, 100) // Scale: 5 events = max intensity
+                        m.coords[0], m.coords[1], 
+                        Math.min(m.events.hotspotCount * 25, 100) 
                     ]);
                     heatLayer = L.heatLayer(heatPoints, { radius: 35, blur: 20, maxZoom: 14 }).addTo(map);
-                } else {
-                    heatLayer.addTo(map);
-                }
-
+                } else { heatLayer.addTo(map); }
             } else {
-                // STANDARD MODE
-                // Show Markers, Hide Heatmap, Show Popup Overlay
                 if (heatLayer) map.removeLayer(heatLayer);
-                document.getElementById('upcoming-overlay').classList.remove('hidden');
+                if (eventHighlightLayer) map.removeLayer(eventHighlightLayer); // Clear event pin on toggle
 
                 allMarkers.forEach(obj => {
                     let visible = false;
                     if (obj.type === 'fomc' && showFOMC) visible = true;
                     if (obj.type === 'partner' && showPartner) visible = true;
                     if (obj.type === 'other' && showOther) visible = true;
-
-                    if (visible) obj.marker.addTo(map);
-                    else map.removeLayer(obj.marker);
+                    if (visible) obj.marker.addTo(map); else map.removeLayer(obj.marker);
                 });
             }
         }

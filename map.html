@@ -99,7 +99,7 @@
         
         /* --- PRINT STYLES --- */
         @media print {
-            .map-controls { display: none !important; }
+            .map-controls, .leaflet-control-layers { display: none !important; }
             .group-list-item, .custom-pin, .pin-swatch, .group-dot {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
@@ -178,13 +178,31 @@
         window.onload = init;
 
         async function init() {
+            // Initialize Map
             map = L.map('map', { zoomControl: false }).setView([-37.75, 144.98], 12); 
             L.control.zoom({ position: 'topright' }).addTo(map);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; OpenStreetMap &copy; CARTO',
-                subdomains: 'abcd',
-                maxZoom: 20
-            }).addTo(map);
+            
+            // --- BASEMAPS ---
+            // 1. OpenTopoMap (High Contrast, Terrain)
+            const topoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                maxZoom: 17,
+                attribution: 'Map data: &copy; OpenStreetMap contributors, SRTM | Map style: &copy; OpenTopoMap (CC-BY-SA)'
+            });
+
+            // 2. Esri World Imagery (Satellite) - Good for checking reality
+            const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 19,
+                attribution: 'Tiles &copy; Esri'
+            });
+
+            // Add Topo by default
+            topoMap.addTo(map);
+
+            // Add Layer Control
+            L.control.layers({
+                "Terrain (High Contrast)": topoMap,
+                "Satellite": satellite
+            }, null, { position: 'topright' }).addTo(map);
 
             await loadContextLayer(); 
             await loadMapPoints();    
@@ -213,50 +231,60 @@
         }
 
         function renderBoundary(data, renderer) {
-            // 1. CREATE THE INVERSE MASK (The "Hole" Method)
+            // 1. INVERSE MASK (THE "SPOTLIGHT")
             const tempLayer = L.geoJSON(data);
             const layers = tempLayer.getLayers();
             
             if (layers.length > 0) {
-                // Get the coordinates of the catchment polygon
-                // Leaflet's getLatLngs() returns Array of Arrays for polygons (Rings)
-                // We assume the first feature is the main catchment
+                // Get coords
                 let latlngs = layers[0].getLatLngs();
                 
-                // If it's a simple polygon, latlngs[0] is the outer ring.
-                // We use this inner ring to cut a hole in the world map.
-                const catchmentRing = Array.isArray(latlngs[0]) ? latlngs[0] : latlngs;
+                // ROBUST GEOMETRY HANDLING:
+                // Leaflet stores polygons as [ [OuterRing], [Hole1], ... ]
+                // MultiPolygons are [ [ [Outer], ... ], [ ... ] ]
+                // We need the *Outer Ring* of the main shape to use as the hole in our world mask.
+                
+                let holeCoords;
+                
+                if (Array.isArray(latlngs[0]) && Array.isArray(latlngs[0][0])) {
+                    // MultiPolygon structure: [[[lat,lng],...], ...]
+                    // We take the first polygon's outer ring
+                    holeCoords = latlngs[0][0]; 
+                } else if (Array.isArray(latlngs[0])) {
+                    // Simple Polygon structure: [[lat,lng],...]
+                    // The first array is the outer ring
+                    holeCoords = latlngs[0];
+                } else {
+                    // Flat array (rare in L.geoJSON but possible)
+                    holeCoords = latlngs;
+                }
 
-                // Define World Bounds (Outer Ring)
-                const worldLatLngs = [
-                    [-90, -180], [-90, 180], [90, 180], [90, -180]
-                ];
+                // World Bounds
+                const worldLatLngs = [[-90, -180], [-90, 180], [90, 180], [90, -180]];
 
-                // Create Polygon: [Outer, Inner(Hole)]
-                const inverseMask = L.polygon([worldLatLngs, catchmentRing], {
+                // Draw Mask: Polygon with Hole
+                const inverseMask = L.polygon([worldLatLngs, holeCoords], {
                     color: 'transparent',
                     fillColor: '#000',
-                    fillOpacity: 0.45, // Darkens the outside world
+                    fillOpacity: 0.5, // Increased opacity for better spotlight contrast
                     interactive: false,
                     renderer: renderer
                 }).addTo(map);
                 inverseMask.bringToBack();
             }
 
-            // 2. DRAW THE ACTUAL BOUNDARY LINE ON TOP
-            // We draw this separately so it can have a color/outline without filling the middle
+            // 2. BOUNDARY LINE
             L.geoJSON(data, {
                 renderer: renderer,
                 style: { 
-                    color: "#2c3e50", 
-                    weight: 3, 
+                    color: "#e74c3c", // Changed to Red-Orange for high visibility against green/blue maps
+                    weight: 2, 
                     fill: false, 
                     dashArray: '5, 5',
                     interactive: false 
                 }
             }).addTo(map);
 
-            // Fit bounds to catchment
             const bounds = tempLayer.getBounds();
             map.fitBounds(bounds, { padding: [20, 20] });
         }
@@ -293,7 +321,6 @@
             
             const coords = [lat, lng]; 
 
-            // Create Icon
             const iconClass = `custom-pin type-${type}`;
             const customIcon = L.divIcon({
                 className: iconClass,
@@ -303,11 +330,8 @@
             });
 
             const marker = L.marker(coords, {icon: customIcon}).addTo(map);
-            
-            // Simplified Popup
             marker.bindPopup(generatePopupHtml(rawName, type));
 
-            // Add Click Behavior (Zoom/Pan) - SAME AS SIDEBAR
             marker.on('click', () => {
                 map.flyTo(coords, 14, { duration: 1.5 });
             });
@@ -336,10 +360,9 @@
 
         function generateGroupList() {
             const container = document.getElementById('group-list-container');
-            // SORTING: South to North (Ascending Latitude)
-            const sorted = [...allMarkers].sort((a,b) => a.coords[0] - b.coords[0]);
+            const sorted = [...allMarkers].sort((a,b) => a.coords[0] - b.coords[0]); // South to North
             
-            container.innerHTML = ""; // Clear existing
+            container.innerHTML = ""; 
             
             sorted.forEach(item => {
                 const li = document.createElement('li');

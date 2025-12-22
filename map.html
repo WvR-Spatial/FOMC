@@ -26,13 +26,13 @@
             border-radius: 6px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
             z-index: 1000;
-            width: 240px; /* Narrower */
+            width: 240px; 
             max-width: 80%;
             height: auto;
             max-height: 95vh;
             display: flex;
             flex-direction: column;
-            font-size: 13px; /* Tighter font */
+            font-size: 13px;
         }
 
         .controls-header {
@@ -65,7 +65,7 @@
         details summary:hover { text-decoration: underline; }
         
         /* Group List */
-        .group-list { list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; }
+        .group-list { list-style: none; padding: 0; margin: 0; max-height: 300px; overflow-y: auto; }
         .group-list-item { 
             padding: 4px 6px; 
             cursor: pointer; 
@@ -77,22 +77,6 @@
         }
         .group-list-item:hover { background: #eef2f5; color: #000; }
         .group-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; flex-shrink: 0;}
-
-        /* Upcoming Events (Integrated) */
-        .upcoming-list-integrated { padding: 0; margin: 0; }
-        .upcoming-item-integrated {
-            padding: 8px;
-            background: #f8f9fa;
-            border-left: 3px solid #2ecc71;
-            margin-bottom: 6px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .upcoming-item-integrated:hover { background: #e8f5e9; }
-        .up-date { font-weight: bold; color: #27ae60; display: block; font-size: 11px; }
-        .up-title { font-weight: 500; color: #333; display: block; margin: 2px 0; }
-        .up-loc { color: #7f8c8d; font-size: 10px; }
 
         /* --- PINS & POPUPS --- */
         .pin-swatch { width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; border: 1px solid #ccc; }
@@ -110,26 +94,19 @@
         .custom-pin.type-partner { background-color: #9b59b6; }
         .custom-pin.type-other { background-color: #2ecc71; }
         
-        /* Specific Event Pin */
-        .event-pin {
-            background-color: #3498db;
-            border: 2px solid #fff;
-            border-radius: 50%;
-            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.3);
-        }
-
+        .popup-header { font-weight: bold; font-size: 15px; color: #2c3e50; margin-bottom: 5px; border-bottom: 2px solid #eee; padding-bottom: 5px;}
+        .popup-sub { font-size: 11px; text-transform: uppercase; color: #7f8c8d; margin-bottom: 5px; letter-spacing: 0.5px; }
+        
         /* --- PRINT STYLES --- */
         @media print {
             .map-controls { display: none !important; }
-            .upcoming-item-integrated, .group-list-item, .custom-pin, .pin-swatch, .group-dot {
+            .group-list-item, .custom-pin, .pin-swatch, .group-dot {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
         }
 
         /* --- UTILS --- */
-        .hidden { display: none !important; }
-        
         #loader {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             background: rgba(255,255,255,0.95); padding: 20px; border-radius: 8px;
@@ -141,7 +118,7 @@
 
     <div id="loader">
         <h3 style="margin:0 0 10px 0; font-size:16px;">Loading Map</h3>
-        <div style="font-size: 0.9em; color: #666;">Syncing Google Calendar & Maps...</div>
+        <div style="font-size: 0.9em; color: #666;">Fetching Group Locations...</div>
         <div id="error-log" style="font-size:11px; color:red; margin-top:5px;"></div>
     </div>
 
@@ -172,33 +149,14 @@
                 </label>
             </div>
 
-            <!-- 2. NEXT 3 EVENTS -->
+            <!-- 2. ALL GROUPS (Collapsible & Sorted) -->
             <div class="control-section">
-                <div class="control-title">Next 3 Events</div>
-                <div id="upcoming-list-integrated" class="upcoming-list-integrated">
-                    <div style="color:#999; font-style:italic;">Loading events...</div>
-                </div>
-            </div>
-
-            <!-- 3. ALL GROUPS (Collapsible & Sorted) -->
-            <div class="control-section">
-                <details>
-                    <summary class="control-title" style="display:list-item;">All Groups (Expand)</summary>
+                <details open>
+                    <summary class="control-title" style="display:list-item;">All Groups (Sorted South-North)</summary>
                     <ul id="group-list-container" class="group-list">
                         <!-- Populated by JS -->
                     </ul>
                 </details>
-            </div>
-
-            <!-- 4. VISUALISATION -->
-            <div class="control-section">
-                <label class="filter-item">
-                    <input type="checkbox" id="chk-hotspot" onchange="updateView()"> 
-                    <strong>Visualisation:</strong>&nbsp;Activity Hotspot
-                </label>
-                <div style="font-size:10px; color:#666; margin-left:22px; line-height:1.2;">
-                    Heatmap of activity (Past 1yr - Future 3mo).
-                </div>
             </div>
             
             <button onclick="window.print()" style="width:100%; padding:6px; cursor:pointer; background:#eee; border:1px solid #ccc; border-radius:4px; font-size:12px;">Print / Export View</button>
@@ -208,20 +166,14 @@
     <!-- SCRIPTS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ical.js/1.5.0/ical.min.js"></script>
-    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 
     <script>
         // --- CONFIGURATION ---
         const CORS_PROXY = "https://corsproxy.io/?"; 
         const KML_URL = "https://www.google.com/maps/d/u/0/kml?mid=1N4_do_WC-ikYZ3nO9BO7oz343c51fZs&forcekml=1";
-        const ICAL_URL = "https://calendar.google.com/calendar/ical/friendsofmerricreek%40gmail.com/public/basic.ics";
         
         let map;
         let allMarkers = []; 
-        let calendarEvents = [];
-        let heatLayer;
-        let eventHighlightLayer; // For temporary blue pin
 
         window.onload = init;
 
@@ -235,11 +187,9 @@
             }).addTo(map);
 
             await loadContextLayer(); 
-            await loadCalendarData(); 
             await loadMapPoints();    
 
             generateGroupList();
-            generateIntegratedUpcomingList();
 
             document.getElementById('loader').style.display = 'none';
         }
@@ -271,56 +221,6 @@
             map.fitBounds(bounds, { padding: [20, 20] });
         }
 
-        async function loadCalendarData() {
-            try {
-                const proxyUrl = CORS_PROXY + encodeURIComponent(ICAL_URL);
-                const response = await fetch(proxyUrl);
-                if (!response.ok) throw new Error("HTTP " + response.status);
-                
-                const data = await response.text();
-                const jcalData = ICAL.parse(data);
-                const comp = new ICAL.Component(jcalData);
-                calendarEvents = comp.getAllSubcomponents('vevent').map(event => {
-                    const ev = new ICAL.Event(event);
-                    
-                    // Attempt to extract specific coords from Description or Location
-                    const rawDesc = ev.description || "";
-                    const rawLoc = ev.location || "";
-                    const coords = extractCoords(rawDesc) || extractCoords(rawLoc);
-
-                    return {
-                        summary: ev.summary || "",
-                        location: rawLoc,
-                        startDate: ev.startDate.toJSDate(),
-                        description: rawDesc,
-                        lat: coords ? coords.lat : null,
-                        lng: coords ? coords.lng : null 
-                    };
-                });
-                console.log(`Calendar loaded: ${calendarEvents.length} events.`);
-
-            } catch (e) {
-                console.error("Calendar Error:", e);
-                // Fallback
-                calendarEvents = [
-                    {summary: "Community Planting", location: "Coburg Lake", startDate: new Date(Date.now() + 86400000)},
-                    {summary: "Bird Survey", location: "Merri Park", startDate: new Date(Date.now() + 172800000)}
-                ]; 
-            }
-        }
-
-        function extractCoords(text) {
-            if(!text) return null;
-            // Look for patterns like "maps.google.com/?q=lat,lng" or "@lat,lng"
-            // Simple regex for lat,lng pattern: -37.1234, 144.1234
-            const regex = /(-?\d{1,3}\.\d+),\s*(-?\d{1,3}\.\d+)/;
-            const match = text.match(regex);
-            if(match) {
-                return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
-            }
-            return null;
-        }
-
         async function loadMapPoints() {
             try {
                 const proxyUrl = CORS_PROXY + encodeURIComponent(KML_URL);
@@ -335,7 +235,7 @@
 
             } catch (e) {
                 console.error("KML Error:", e);
-                createSmartMarker({properties:{name:"FOMC @ Coburg Lake"}, geometry:{type:"Point", coordinates:[144.965, -37.733]}}, true);
+                createSmartMarker({properties:{name:"FOMC @ Coburg Lake"}, geometry:{type:"Point", coordinates:[144.965, -37.733]}});
             }
         }
 
@@ -353,9 +253,6 @@
             
             const coords = [lat, lng]; 
 
-            // Matching Logic
-            const eventsData = findEventsForGroup(rawName, coords);
-            
             // Create Icon
             const iconClass = `custom-pin type-${type}`;
             const customIcon = L.divIcon({
@@ -367,16 +264,19 @@
 
             const marker = L.marker(coords, {icon: customIcon}).addTo(map);
             
-            // Popup with Next 3 Events
-            const next3 = eventsData.future.slice(0, 3);
-            marker.bindPopup(generatePopupHtml(rawName, type, next3));
+            // Simplified Popup
+            marker.bindPopup(generatePopupHtml(rawName, type));
+
+            // Add Click Behavior (Zoom/Pan) - SAME AS SIDEBAR
+            marker.on('click', () => {
+                map.flyTo(coords, 14, { duration: 1.5 });
+            });
 
             allMarkers.push({ 
                 marker, 
                 type, 
                 name: rawName,
-                coords: coords,
-                events: eventsData
+                coords: coords
             });
         }
 
@@ -387,53 +287,9 @@
             return "other"; 
         }
 
-        function findEventsForGroup(rawMapName, groupCoords) {
-            const now = new Date();
-            const coreName = rawMapName.replace(/FOMC @\s*|Friends of\s*|The\s*/gi, "").trim().toLowerCase();
-
-            // Find all matching events
-            const groupEvents = calendarEvents.filter(e => {
-                const loc = (e.location || "").toLowerCase();
-                const sum = (e.summary || "").toLowerCase();
-                
-                // Match Logic: Name string match
-                const locMatch = loc.includes(coreName) || (loc.length > 5 && coreName.includes(loc));
-                const sumMatch = sum.includes(coreName);
-                
-                // If this event matches, check if it has specific coords. If not, inherit group coords.
-                if (locMatch || sumMatch) {
-                    if (!e.lat) { e.lat = groupCoords[0]; e.lng = groupCoords[1]; }
-                    return true;
-                }
-                return false;
-            });
-
-            groupEvents.sort((a, b) => a.startDate - b.startDate);
-
-            const past = groupEvents.filter(e => e.startDate < now);
-            const future = groupEvents.filter(e => e.startDate >= now);
-            
-            // Hotspot logic
-            const yearAgo = new Date(); yearAgo.setFullYear(now.getFullYear() - 1);
-            const threeMonthsFuture = new Date(); threeMonthsFuture.setMonth(now.getMonth() + 3);
-            const hotspotCount = groupEvents.filter(e => e.startDate >= yearAgo && e.startDate <= threeMonthsFuture).length;
-
-            return { all: groupEvents, past: past, future: future, hotspotCount: hotspotCount };
-        }
-
-        function generatePopupHtml(name, type, nextEvents) {
+        function generatePopupHtml(name, type) {
             let typeLabel = type === 'fomc' ? 'Working Group' : (type === 'partner' ? 'Partner Group' : 'Activity Site');
-            let eventsHtml = '';
-            if (nextEvents.length > 0) {
-                eventsHtml = `<div class="popup-events-list">`;
-                nextEvents.forEach(e => {
-                    eventsHtml += `<div class="popup-event"><span class="event-date">${e.startDate.toLocaleDateString()}</span><span class="event-title">${e.summary}</span></div>`;
-                });
-                eventsHtml += `</div>`;
-            } else {
-                eventsHtml = `<div class="popup-event" style="border-left-color:#ccc;">No upcoming events.</div>`;
-            }
-            return `<div class="popup-header">${name}</div><div class="popup-sub">${typeLabel}</div>${eventsHtml}`;
+            return `<div class="popup-header">${name}</div><div class="popup-sub">${typeLabel}</div>`;
         }
 
         // --- UI GENERATORS ---
@@ -441,8 +297,6 @@
         function generateGroupList() {
             const container = document.getElementById('group-list-container');
             // SORTING: South to North (Ascending Latitude)
-            // Latitude is negative (-37.8 is south of -37.7)
-            // Ascending sort: -37.8 comes before -37.7
             const sorted = [...allMarkers].sort((a,b) => a.coords[0] - b.coords[0]);
             
             container.innerHTML = ""; // Clear existing
@@ -465,101 +319,20 @@
             });
         }
 
-        function generateIntegratedUpcomingList() {
-            const container = document.getElementById('upcoming-list-integrated');
-            const now = new Date();
-            
-            // 1. POOL ALL FUTURE EVENTS
-            // We use the calendarEvents array directly to ensure we catch events even if name matching failed
-            let allFuture = calendarEvents.filter(e => e.startDate >= now);
-            
-            // 2. Sort by Date
-            allFuture.sort((a,b) => a.startDate - b.startDate);
-            
-            // 3. Take Top 3
-            const next3 = allFuture.slice(0, 3);
-            
-            container.innerHTML = "";
-            if(next3.length === 0) {
-                container.innerHTML = "<div style='padding:10px; font-size:11px; color:#777;'>No upcoming events found.</div>";
-                return;
-            }
-
-            next3.forEach(e => {
-                const div = document.createElement('div');
-                div.className = 'upcoming-item-integrated';
-                div.innerHTML = `
-                    <span class="up-date">${e.startDate.toLocaleDateString()}</span>
-                    <span class="up-title">${e.summary}</span>
-                    <span class="up-loc">@ ${e.location || 'Unknown Location'}</span>
-                `;
-                div.onclick = () => {
-                   visualizeEventLocation(e);
-                };
-                container.appendChild(div);
-            });
-        }
-
-        function visualizeEventLocation(event) {
-            // Remove existing highlight
-            if (eventHighlightLayer) map.removeLayer(eventHighlightLayer);
-
-            // Determine Target Coordinates
-            // 1. Event has specific extracted coords?
-            // 2. Event matched to a group? (Need to find group match again if using raw list)
-            
-            let targetCoords = null;
-            
-            if (event.lat && event.lng) {
-                targetCoords = [event.lat, event.lng];
-            } else {
-                // Try to find a group marker that matches this event location string
-                // This is a basic fallback
-                const match = allMarkers.find(m => m.events.all.includes(event));
-                if (match) targetCoords = match.coords;
-            }
-
-            if (targetCoords) {
-                map.flyTo(targetCoords, 15);
-                
-                // Show blue "Event Pin"
-                const icon = L.divIcon({ className: 'event-pin', iconSize: [16, 16] });
-                eventHighlightLayer = L.marker(targetCoords, {icon: icon}).addTo(map)
-                    .bindPopup(`<b>Event Location</b><br>${event.summary}<br>${event.location}`).openPopup();
-            } else {
-                alert("No specific location data found for this event.");
-            }
-        }
-
         // --- FILTER & VIEW LOGIC ---
         
         window.updateView = function() {
             const showFOMC = document.getElementById('chk-fomc').checked;
             const showPartner = document.getElementById('chk-partner').checked;
             const showOther = document.getElementById('chk-other').checked;
-            const enableHotspot = document.getElementById('chk-hotspot').checked;
 
-            if (enableHotspot) {
-                allMarkers.forEach(m => map.removeLayer(m.marker));
-                if (!heatLayer) {
-                    const heatPoints = allMarkers.map(m => [
-                        m.coords[0], m.coords[1], 
-                        Math.min(m.events.hotspotCount * 25, 100) 
-                    ]);
-                    heatLayer = L.heatLayer(heatPoints, { radius: 35, blur: 20, maxZoom: 14 }).addTo(map);
-                } else { heatLayer.addTo(map); }
-            } else {
-                if (heatLayer) map.removeLayer(heatLayer);
-                if (eventHighlightLayer) map.removeLayer(eventHighlightLayer); // Clear event pin on toggle
-
-                allMarkers.forEach(obj => {
-                    let visible = false;
-                    if (obj.type === 'fomc' && showFOMC) visible = true;
-                    if (obj.type === 'partner' && showPartner) visible = true;
-                    if (obj.type === 'other' && showOther) visible = true;
-                    if (visible) obj.marker.addTo(map); else map.removeLayer(obj.marker);
-                });
-            }
+            allMarkers.forEach(obj => {
+                let visible = false;
+                if (obj.type === 'fomc' && showFOMC) visible = true;
+                if (obj.type === 'partner' && showPartner) visible = true;
+                if (obj.type === 'other' && showOther) visible = true;
+                if (visible) obj.marker.addTo(map); else map.removeLayer(obj.marker);
+            });
         }
     </script>
 </body>

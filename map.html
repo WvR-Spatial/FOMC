@@ -206,18 +206,58 @@
                 throw new Error("Local file not found");
             } catch (e) { 
                 console.log("Using Fallback Boundary.");
+                // Approximate fallback for preview
                 const fallbackGeoJSON = { "type": "FeatureCollection", "features": [{ "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[ [144.96, -37.50], [145.02, -37.50], [145.05, -37.60], [145.02, -37.70], [145.00, -37.78], [144.98, -37.78], [144.95, -37.70], [144.92, -37.60], [144.96, -37.50] ]] } }] };
                 renderBoundary(fallbackGeoJSON, myRenderer);
             }
         }
 
         function renderBoundary(data, renderer) {
+            // 1. CREATE THE INVERSE MASK (The "Hole" Method)
+            const tempLayer = L.geoJSON(data);
+            const layers = tempLayer.getLayers();
+            
+            if (layers.length > 0) {
+                // Get the coordinates of the catchment polygon
+                // Leaflet's getLatLngs() returns Array of Arrays for polygons (Rings)
+                // We assume the first feature is the main catchment
+                let latlngs = layers[0].getLatLngs();
+                
+                // If it's a simple polygon, latlngs[0] is the outer ring.
+                // We use this inner ring to cut a hole in the world map.
+                const catchmentRing = Array.isArray(latlngs[0]) ? latlngs[0] : latlngs;
+
+                // Define World Bounds (Outer Ring)
+                const worldLatLngs = [
+                    [-90, -180], [-90, 180], [90, 180], [90, -180]
+                ];
+
+                // Create Polygon: [Outer, Inner(Hole)]
+                const inverseMask = L.polygon([worldLatLngs, catchmentRing], {
+                    color: 'transparent',
+                    fillColor: '#000',
+                    fillOpacity: 0.45, // Darkens the outside world
+                    interactive: false,
+                    renderer: renderer
+                }).addTo(map);
+                inverseMask.bringToBack();
+            }
+
+            // 2. DRAW THE ACTUAL BOUNDARY LINE ON TOP
+            // We draw this separately so it can have a color/outline without filling the middle
             L.geoJSON(data, {
                 renderer: renderer,
-                style: { color: "#2c3e50", weight: 3, fillColor: "#000", fillOpacity: 0.0, dashArray: '5, 5' },
-                interactive: false 
+                style: { 
+                    color: "#2c3e50", 
+                    weight: 3, 
+                    fill: false, 
+                    dashArray: '5, 5',
+                    interactive: false 
+                }
             }).addTo(map);
-            const bounds = L.geoJSON(data).getBounds();
+
+            // Fit bounds to catchment
+            const bounds = tempLayer.getBounds();
             map.fitBounds(bounds, { padding: [20, 20] });
         }
 
